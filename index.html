@@ -6,109 +6,148 @@
     <title>🏡 SOM 附近公寓</title>
     <style>
         :root {
-            --primary: #ff8fa3;
-            --bg: #fff0f3;
+            /* 耶鲁大学标准配色方案 */
+            --yale-blue: #00356b;
+            --yale-gray: #5e6d7a;
+            --bg: #f5f7f9; /* 浅灰蓝色背景，更有质感 */
             --card-bg: #ffffff;
-            --text-main: #333333;
-            --text-light: #777777;
+            --text-main: #222222;
+            --text-light: #5e6d7a;
+            --accent: #286dc0;
         }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: "YaleDesign", "Times New Roman", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, serif;
             background-color: var(--bg);
             color: var(--text-main);
             margin: 0;
             padding: 20px;
         }
-        h1 {
+        header {
             text-align: center;
-            color: var(--primary);
-            font-size: 28px;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
+        }
+        .title-link {
+            text-decoration: none;
+            display: inline-block;
+            transition: opacity 0.2s;
+        }
+        .title-link:hover {
+            opacity: 0.8;
+        }
+        h1 {
+            color: var(--yale-blue);
+            font-size: 32px;
+            margin: 0;
+            border-bottom: 3px solid var(--yale-blue);
+            padding-bottom: 10px;
         }
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
         }
         .card {
             background: var(--card-bg);
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 8px 16px rgba(255, 143, 163, 0.1);
-            transition: transform 0.2s;
+            border-radius: 4px; /* 耶鲁风格偏向方正、稳重 */
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0, 53, 107, 0.08);
+            border-top: 5px solid var(--yale-blue);
+            display: flex;
+            flex-direction: column;
+            transition: box-shadow 0.3s ease;
         }
         .card:hover {
-            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 53, 107, 0.15);
         }
         .card-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid var(--bg);
-            padding-bottom: 10px;
+            align-items: flex-start;
             margin-bottom: 15px;
         }
         .apt-name {
             font-size: 20px;
-            font-weight: bold;
-            color: var(--text-main);
+            font-weight: 700;
+            color: var(--yale-blue);
             text-decoration: none;
-        }
-        .apt-name:hover {
-            color: var(--primary);
+            line-height: 1.2;
         }
         .rating {
-            background: #fff3cd;
-            color: #856404;
-            padding: 4px 8px;
-            border-radius: 12px;
+            background: #eef4fb;
+            color: var(--yale-blue);
+            padding: 4px 10px;
+            border-radius: 4px;
             font-size: 14px;
             font-weight: bold;
+            white-space: nowrap;
         }
         .info-row {
-            margin: 8px 0;
+            margin: 10px 0;
             font-size: 15px;
             display: flex;
             align-items: flex-start;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 8px;
         }
         .info-icon {
-            margin-right: 8px;
+            margin-right: 12px;
+            font-size: 18px;
+            min-width: 20px;
+        }
+        .notes-section {
+            margin-top: 15px;
+            padding-top: 10px;
+            font-size: 14px;
+            color: #555;
+            background: #f9f9f9;
+            padding: 10px;
+            border-left: 3px solid #ddd;
+            font-style: italic;
         }
         .tags {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
-            margin-top: 15px;
+            margin-top: auto;
+            padding-top: 15px;
         }
         .tag {
-            background: #e3f2fd;
-            color: #1976d2;
-            padding: 4px 10px;
-            border-radius: 12px;
+            background: #f0f2f5;
+            color: var(--yale-blue);
+            padding: 4px 12px;
+            border-radius: 2px;
             font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
         }
         .tag-promo {
-            background: #ffebee;
-            color: #c62828;
+            background: #fff0f0;
+            color: #b71c1c;
+            border: 1px solid #ffcdd2;
         }
         .loading {
             text-align: center;
-            color: var(--text-light);
+            color: var(--yale-gray);
             grid-column: 1 / -1;
+            padding: 50px;
         }
     </style>
 </head>
 <body>
 
-    <h1> 公寓列表 🏡</h1>
+    <header>
+        <a href="https://docs.google.com/spreadsheets/d/1aOBMpWpuHDC6qtuPj9m1i7pTVCX6CsdMwE-LosD2cCA/edit?usp=sharing" target="_blank" class="title-link">
+            <h1>🏡 SOM 附近公寓列表</h1>
+        </a>
+    </header>
+
     <div class="container" id="app">
         <div class="loading">正在加载房源数据... ✨</div>
     </div>
 
     <script>
-        // 读取同一目录下的 data.csv 文件
         fetch('data.csv')
             .then(response => response.text())
             .then(data => {
@@ -116,13 +155,10 @@
                 const container = document.getElementById('app');
                 container.innerHTML = ''; 
 
-                // 你的数据前两行是表头（分类和列名），所以我们从第三行 (i=2) 开始读取
                 for (let i = 2; i < rows.length; i++) {
                     const cols = rows[i].split(',');
-                    // 如果这一行没有数据，就跳过
                     if (cols.length < 10 || !cols[0].trim()) continue;
 
-                    // 提取你的具体列数据 (对应你表格的列顺序)
                     const name = cols[0];
                     const website = cols[2];
                     const studioPrice = cols[4];
@@ -130,30 +166,37 @@
                     const promo = cols[6];
                     const rating = cols[9];
                     const commute = cols[10];
-                    const washer = cols[11]; // 室内洗烘
-                    const ac = cols[14];     // 空调取暖
+                    const washer = cols[11];
+                    const ac = cols[14];
+                    const notes = cols[18]; // 提取第 19 列的附注
 
-                    // 生成每个公寓的卡片
                     const card = document.createElement('div');
                     card.className = 'card';
                     
                     card.innerHTML = `
                         <div class="card-header">
                             <a href="${website}" target="_blank" class="apt-name">${name} 🔗</a>
-                            <span class="rating">⭐ ${rating || '暂无评分'}</span>
+                            <span class="rating">⭐ ${rating || 'N/A'}</span>
                         </div>
                         <div class="info-row">
                             <span class="info-icon">💰</span>
-                            <span><b>Studio:</b> ${studioPrice || '暂无'} <br> <b>2B2B:</b> ${b2Price || '暂无'}</span>
+                            <span><b>Studio:</b> ${studioPrice || '/'} | <b>2B2B:</b> ${b2Price || '/'}</span>
                         </div>
                         <div class="info-row">
                             <span class="info-icon">🚶‍♀️</span>
                             <span><b>通勤:</b> ${commute || '未知'}</span>
                         </div>
+                        
+                        ${notes && notes.trim() !== '/' && notes.trim() !== '' ? `
+                            <div class="notes-section">
+                                <b>附注:</b> ${notes}
+                            </div>
+                        ` : ''}
+
                         <div class="tags">
-                            ${washer !== '/' && washer ? `<span class="tag">👕 ${washer}洗烘</span>` : ''}
-                            ${ac !== '/' && ac ? `<span class="tag">❄️ ${ac}</span>` : ''}
-                            ${promo !== '/' && promo ? `<span class="tag tag-promo">🎁 优惠: ${promo}</span>` : ''}
+                            ${washer && washer.includes('有') ? `<span class="tag">室内洗烘</span>` : ''}
+                            ${ac && ac !== '/' ? `<span class="tag">❄️ ${ac}</span>` : ''}
+                            ${promo && promo !== '/' ? `<span class="tag tag-promo">🎁 ${promo}</span>` : ''}
                         </div>
                     `;
                     container.appendChild(card);
