@@ -81,6 +81,19 @@
             font-size: 14px;
             font-weight: bold;
             white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        /* 红心高亮样式与跳动动画 */
+        .heart-icon {
+            font-size: 16px;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
         }
         .info-row {
             margin: 10px 0;
@@ -105,7 +118,6 @@
             border-left: 3px solid #ddd;
             font-style: italic;
         }
-        /* 新增：专属意见高亮样式 */
         .recommendation-box {
             margin-top: 15px;
             padding: 12px 15px;
@@ -118,9 +130,7 @@
         }
         .recommendation-box b {
             color: #c1121f;
-            display: flex;
-            align-items: center;
-            gap: 5px;
+            display: block;
             margin-bottom: 6px;
             font-size: 16px;
         }
@@ -173,7 +183,6 @@
                 const container = document.getElementById('app');
                 container.innerHTML = ''; 
 
-                // 第一步：先把所有公寓数据存到一个数组里，方便后续排序
                 let apartments = [];
 
                 for (let i = 2; i < rows.length; i++) {
@@ -191,30 +200,30 @@
                         washer: cols[11],
                         ac: cols[14],
                         notes: cols[18] ? cols[18].trim().replace('\r', '') : '',
-                        // 第20列（索引19）是你的综合意见
                         recommendation: cols[19] ? cols[19].trim().replace('\r', '') : '' 
                     });
                 }
 
-                // 第二步：自动排序！把你写了综合意见的公寓排到最前面
+                // 排序逻辑：有G0意见的优先
                 apartments.sort((a, b) => {
                     const aHasRec = (a.recommendation && a.recommendation !== '/' && a.recommendation !== '') ? 1 : 0;
                     const bHasRec = (b.recommendation && b.recommendation !== '/' && b.recommendation !== '') ? 1 : 0;
                     return bHasRec - aHasRec; 
                 });
 
-                // 第三步：将排序好的公寓渲染到网页上
                 apartments.forEach(apt => {
                     const card = document.createElement('div');
                     card.className = 'card';
                     
-                    // 判断是否有综合意见
                     const hasRec = apt.recommendation && apt.recommendation !== '/' && apt.recommendation !== '';
                     
                     card.innerHTML = `
                         <div class="card-header">
                             <a href="${apt.website}" target="_blank" class="apt-name">${apt.name} 🔗</a>
-                            <span class="rating">⭐ ${apt.rating || 'N/A'}</span>
+                            <span class="rating">
+                                ${hasRec ? `<span class="heart-icon">❤️</span>` : ''} 
+                                ⭐ ${apt.rating || 'N/A'}
+                            </span>
                         </div>
                         <div class="info-row">
                             <span class="info-icon">💰</span>
@@ -233,7 +242,7 @@
 
                         ${hasRec ? `
                             <div class="recommendation-box">
-                                <b>❤️ 专属意见</b>
+                                <b>G0意见</b>
                                 ${apt.recommendation}
                             </div>
                         ` : ''}
