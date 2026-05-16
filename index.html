@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏡 SOM 附近公寓</title>
+    <title>🏡 SOM 附近公寓列表 🐕‍🦺</title>
     <style>
         :root {
             /* 耶鲁大学标准配色方案 */
             --yale-blue: #00356b;
             --yale-gray: #5e6d7a;
-            --bg: #f5f7f9; /* 浅灰蓝色背景，更有质感 */
+            --bg: #f5f7f9; 
             --card-bg: #ffffff;
             --text-main: #222222;
             --text-light: #5e6d7a;
-            --accent: #286dc0;
         }
         body {
             font-family: "YaleDesign", "Times New Roman", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, serif;
@@ -50,7 +49,7 @@
         }
         .card {
             background: var(--card-bg);
-            border-radius: 4px; /* 耶鲁风格偏向方正、稳重 */
+            border-radius: 6px; 
             padding: 24px;
             box-shadow: 0 4px 12px rgba(0, 53, 107, 0.08);
             border-top: 5px solid var(--yale-blue);
@@ -106,6 +105,25 @@
             border-left: 3px solid #ddd;
             font-style: italic;
         }
+        /* 新增：专属意见高亮样式 */
+        .recommendation-box {
+            margin-top: 15px;
+            padding: 12px 15px;
+            background-color: #fff0f3;
+            border-left: 4px solid #ff4d6d;
+            border-radius: 0 4px 4px 0;
+            color: #800f2f;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        .recommendation-box b {
+            color: #c1121f;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 6px;
+            font-size: 16px;
+        }
         .tags {
             display: flex;
             flex-wrap: wrap;
@@ -139,7 +157,7 @@
 
     <header>
         <a href="https://docs.google.com/spreadsheets/d/1aOBMpWpuHDC6qtuPj9m1i7pTVCX6CsdMwE-LosD2cCA/edit?usp=sharing" target="_blank" class="title-link">
-            <h1>🏡 SOM 附近公寓列表</h1>
+            <h1>SOM 附近公寓列表 🏡 👩🏻‍💻 🐕‍🦺</h1>
         </a>
     </header>
 
@@ -155,52 +173,79 @@
                 const container = document.getElementById('app');
                 container.innerHTML = ''; 
 
+                // 第一步：先把所有公寓数据存到一个数组里，方便后续排序
+                let apartments = [];
+
                 for (let i = 2; i < rows.length; i++) {
                     const cols = rows[i].split(',');
                     if (cols.length < 10 || !cols[0].trim()) continue;
 
-                    const name = cols[0];
-                    const website = cols[2];
-                    const studioPrice = cols[4];
-                    const b2Price = cols[5];
-                    const promo = cols[6];
-                    const rating = cols[9];
-                    const commute = cols[10];
-                    const washer = cols[11];
-                    const ac = cols[14];
-                    const notes = cols[18]; // 提取第 19 列的附注
+                    apartments.push({
+                        name: cols[0],
+                        website: cols[2],
+                        studioPrice: cols[4],
+                        b2Price: cols[5],
+                        promo: cols[6],
+                        rating: cols[9],
+                        commute: cols[10],
+                        washer: cols[11],
+                        ac: cols[14],
+                        notes: cols[18] ? cols[18].trim().replace('\r', '') : '',
+                        // 第20列（索引19）是你的综合意见
+                        recommendation: cols[19] ? cols[19].trim().replace('\r', '') : '' 
+                    });
+                }
 
+                // 第二步：自动排序！把你写了综合意见的公寓排到最前面
+                apartments.sort((a, b) => {
+                    const aHasRec = (a.recommendation && a.recommendation !== '/' && a.recommendation !== '') ? 1 : 0;
+                    const bHasRec = (b.recommendation && b.recommendation !== '/' && b.recommendation !== '') ? 1 : 0;
+                    return bHasRec - aHasRec; 
+                });
+
+                // 第三步：将排序好的公寓渲染到网页上
+                apartments.forEach(apt => {
                     const card = document.createElement('div');
                     card.className = 'card';
                     
+                    // 判断是否有综合意见
+                    const hasRec = apt.recommendation && apt.recommendation !== '/' && apt.recommendation !== '';
+                    
                     card.innerHTML = `
                         <div class="card-header">
-                            <a href="${website}" target="_blank" class="apt-name">${name} 🔗</a>
-                            <span class="rating">⭐ ${rating || 'N/A'}</span>
+                            <a href="${apt.website}" target="_blank" class="apt-name">${apt.name} 🔗</a>
+                            <span class="rating">⭐ ${apt.rating || 'N/A'}</span>
                         </div>
                         <div class="info-row">
                             <span class="info-icon">💰</span>
-                            <span><b>Studio:</b> ${studioPrice || '/'} | <b>2B2B:</b> ${b2Price || '/'}</span>
+                            <span><b>Studio:</b> ${apt.studioPrice || '/'} | <b>2B2B:</b> ${apt.b2Price || '/'}</span>
                         </div>
                         <div class="info-row">
                             <span class="info-icon">🚶‍♀️</span>
-                            <span><b>通勤:</b> ${commute || '未知'}</span>
+                            <span><b>通勤:</b> ${apt.commute || '未知'}</span>
                         </div>
                         
-                        ${notes && notes.trim() !== '/' && notes.trim() !== '' ? `
+                        ${apt.notes && apt.notes !== '/' ? `
                             <div class="notes-section">
-                                <b>附注:</b> ${notes}
+                                <b>附注:</b> ${apt.notes}
+                            </div>
+                        ` : ''}
+
+                        ${hasRec ? `
+                            <div class="recommendation-box">
+                                <b>❤️ 专属意见</b>
+                                ${apt.recommendation}
                             </div>
                         ` : ''}
 
                         <div class="tags">
-                            ${washer && washer.includes('有') ? `<span class="tag">室内洗烘</span>` : ''}
-                            ${ac && ac !== '/' ? `<span class="tag">❄️ ${ac}</span>` : ''}
-                            ${promo && promo !== '/' ? `<span class="tag tag-promo">🎁 ${promo}</span>` : ''}
+                            ${apt.washer && apt.washer.includes('有') ? `<span class="tag">室内洗烘</span>` : ''}
+                            ${apt.ac && apt.ac !== '/' ? `<span class="tag">❄️ ${apt.ac}</span>` : ''}
+                            ${apt.promo && apt.promo !== '/' ? `<span class="tag tag-promo">🎁 ${apt.promo}</span>` : ''}
                         </div>
                     `;
                     container.appendChild(card);
-                }
+                });
             })
             .catch(error => {
                 document.getElementById('app').innerHTML = '<div class="loading">读取数据失败了，请检查 data.csv 是否上传成功 😢</div>';
