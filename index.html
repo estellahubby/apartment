@@ -72,7 +72,46 @@
             color: var(--yale-blue);
             text-decoration: none;
             line-height: 1.2;
+            padding-right: 10px;
         }
+        
+        /* 头部右侧按钮组：将心形按钮和评分并排 */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px; /* 按钮和星星之间的间距 */
+        }
+
+        /* 独立的红心按钮样式 */
+        .heart-btn {
+            background-color: #fff0f3;
+            border: 1px solid #ffb3c1;
+            padding: 4px 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(255, 77, 109, 0.15);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* 鼠标悬停时的立体点击感 */
+        .heart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 77, 109, 0.3);
+            background-color: #ffe6ea;
+        }
+        /* 心跳小动画保留在按钮内部 */
+        .heart-icon {
+            font-size: 14px;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+
         .rating {
             background: #eef4fb;
             color: var(--yale-blue);
@@ -83,18 +122,8 @@
             white-space: nowrap;
             display: flex;
             align-items: center;
-            gap: 5px;
         }
-        /* 红心高亮样式与跳动动画 */
-        .heart-icon {
-            font-size: 16px;
-            animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.15); }
-            100% { transform: scale(1); }
-        }
+        
         .info-row {
             margin: 10px 0;
             font-size: 15px;
@@ -211,7 +240,7 @@
                     return bHasRec - aHasRec; 
                 });
 
-                apartments.forEach(apt => {
+                apartments.forEach((apt, index) => {
                     const card = document.createElement('div');
                     card.className = 'card';
                     
@@ -220,10 +249,13 @@
                     card.innerHTML = `
                         <div class="card-header">
                             <a href="${apt.website}" target="_blank" class="apt-name">${apt.name} 🔗</a>
-                            <span class="rating">
-                                ${hasRec ? `<span class="heart-icon">❤️</span>` : ''} 
-                                ⭐ ${apt.rating || 'N/A'}
-                            </span>
+                            <div class="header-actions">
+                                ${hasRec ? `
+                                <div class="heart-btn" title="包含 G0 意见" onclick="document.getElementById('rec-${index}').scrollIntoView({behavior: 'smooth', block: 'center'});">
+                                    <span class="heart-icon">❤️</span>
+                                </div>` : ''} 
+                                <span class="rating">⭐ ${apt.rating || 'N/A'}</span>
+                            </div>
                         </div>
                         <div class="info-row">
                             <span class="info-icon">💰</span>
@@ -241,7 +273,7 @@
                         ` : ''}
 
                         ${hasRec ? `
-                            <div class="recommendation-box">
+                            <div id="rec-${index}" class="recommendation-box">
                                 <b>G0意见</b>
                                 ${apt.recommendation}
                             </div>
